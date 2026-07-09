@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rock Climbing Simulator</title>
+<style>
+  :root {
+    /* granite neutrals, slight cool bias */
+    --basalt: #16191d;
+    --stone-900: #1d2126;
+    --stone-700: #33383f;
+    --granite: #6b7078;
+    --scree: #a9adb3;
+    --chalk: #f3f5f6;
+    --chalk-dim: #e4e8ea;
+    /* anodized clip-in accent */
+    --clip: #2f6bff;
+    --clip-soft: #4d81ff;
+    /* semantic (demo only) */
+    --good: #37b06a;
+    --warn: #e8a53a;
+    --bad: #e0533b;
+
+    /* themed tokens — light default */
+    --bg: var(--chalk);
+    --bg-panel: #ffffff;
+    --bg-sunk: #eceff1;
+    --ink: var(--basalt);
+    --ink-soft: #4a5058;
+    --ink-faint: var(--granite);
+    --rule: #d7dbde;
+    --accent: var(--clip);
+    --accent-ink: #ffffff;
+    --wall: #dfe3e6;
+    --wall-line: #c6ccd0;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+    --grotesk: ui-sans-serif, system-ui, "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+    --step--1: clamp(0.82rem, 0.79rem + 0.15vw, 0.9rem);
+    --step-0: clamp(1.02rem, 0.98rem + 0.2vw, 1.14rem);
+    --step-1: clamp(1.3rem, 1.2rem + 0.5vw, 1.6rem);
+    --step-2: clamp(1.7rem, 1.5rem + 1vw, 2.3rem);
+    --step-3: clamp(2.4rem, 1.9rem + 2.4vw, 4rem);
+    --step-4: clamp(3.2rem, 2.2rem + 4.6vw, 6.4rem);
+
+    --maxw: 68rem;
+    --gutter: clamp(1.1rem, 0.6rem + 2.5vw, 3rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: var(--basalt);
+      --bg-panel: #1e2227;
+      --bg-sunk: #14171b;
+      --ink: var(--chalk);
+      --ink-soft: #b9bec4;
+      --ink-faint: #7f858c;
+      --rule: #2c3138;
+      --accent: var(--clip-soft);
+      --accent-ink: #0b1020;
+      --wall: #23272d;
+      --wall-line: #313740;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: var(--chalk);
+    --bg-panel: #ffffff;
+    --bg-sunk: #eceff1;
+    --ink: var(--basalt);
+    --ink-soft: #4a5058;
+    --ink-faint: var(--granite);
+    --rule: #d7dbde;
+    --accent: var(--clip);
+    --accent-ink: #ffffff;
+    --wall: #dfe3e6;
+    --wall-line: #c6ccd0;
+  }
+  :root[data-theme="dark"] {
+    --bg: var(--basalt);
+    --bg-panel: #1e2227;
+    --bg-sunk: #14171b;
+    --ink: var(--chalk);
+    --ink-soft: #b9bec4;
+    --ink-faint: #7f858c;
+    --rule: #2c3138;
+    --accent: var(--clip-soft);
+    --accent-ink: #0b1020;
+    --wall: #23272d;
+    --wall-line: #313740;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .wrap { max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+
+  .eyebrow {
+    font-family: var(--grotesk);
+    font-weight: 700;
+    font-size: var(--step--1);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  h1, h2, h3 { font-family: var(--grotesk); text-wrap: balance; line-height: 1.02; }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---- Hero ---- */
+  header.hero {
+    border-bottom: 1px solid var(--rule);
+    padding-block: clamp(3rem, 2rem + 6vw, 7rem) clamp(2.4rem, 1.6rem + 4vw, 5rem);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: 0.28;
+    -webkit-mask-image: radial-gradient(120% 90% at 78% 0%, #000 25%, transparent 72%);
+            mask-image: radial-gradient(120% 90% at 78% 0%, #000 25%, transparent 72%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; }
+  .hero h1 {
+    font-size: var(--step-4);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin: 0.5rem 0 0;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero .lede {
+    max-width: 34ch;
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    margin: 1.4rem 0 0;
+    line-height: 1.4;
+  }
+  .grade-strip {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin-top: 2rem;
+    font-family: var(--grotesk);
+    font-size: var(--step--1);
+  }
+  .grade {
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.3rem 0.8rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+  .grade b { color: var(--ink); font-weight: 700; }
+
+  /* ---- Sections ---- */
+  section { padding-block: clamp(2.6rem, 1.8rem + 4vw, 5rem); }
+  .section-head { max-width: 46ch; margin-bottom: clamp(1.6rem, 1rem + 2vw, 2.6rem); }
+  .section-head h2 {
+    font-size: var(--step-2);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0.55rem 0 0;
+  }
+  .section-head p { color: var(--ink-soft); margin: 0.8rem 0 0; }
+
+  /* ---- Technique cards ---- */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .card {
+    background: var(--bg-panel);
+    padding: 1.5rem 1.4rem 1.6rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .card .num {
+    font-family: var(--mono);
+    font-size: var(--step--1);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .card h3 {
+    font-size: var(--step-1);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0.1rem 0 0.2rem;
+  }
+  .card p { margin: 0; font-size: calc(var(--step-0) * 0.96); color: var(--ink-soft); line-height: 1.55; }
+  .card .cue {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    font-family: var(--grotesk);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 0.02em;
+  }
+  .card .cue::before { content: "▸ "; color: var(--accent); }
+
+  /* ---- Demo ---- */
+  .demo-section { background: var(--bg-sunk); border-block: 1px solid var(--rule); }
+  .demo {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 1fr);
+    gap: clamp(1rem, 0.4rem + 2vw, 2rem);
+    align-items: stretch;
+  }
+  @media (max-width: 760px) { .demo { grid-template-columns: 1fr; } }
+
+  .stage {
+    background: var(--bg-panel);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 0.7rem;
+    position: relative;
+  }
+  canvas#wall { display: block; width: 100%; height: auto; border-radius: 8px; cursor: grab; touch-action: none; }
+  canvas#wall.dragging { cursor: grabbing; }
+  .stage .hint {
+    position: absolute; left: 1rem; bottom: 1rem;
+    font-family: var(--grotesk); font-size: var(--step--1);
+    color: var(--ink-faint);
+    background: color-mix(in srgb, var(--bg-panel) 82%, transparent);
+    padding: 0.25rem 0.6rem; border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 1.3rem 1.3rem 1.4rem;
+    display: flex; flex-direction: column; gap: 1.15rem;
+  }
+  .verdict { display: flex; flex-direction: column; gap: 0.35rem; }
+  .verdict .status {
+    font-family: var(--grotesk); font-weight: 800;
+    font-size: var(--step-1); letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 0.55rem;
+    transition: color 0.25s;
+  }
+  .verdict .status .dot {
+    width: 0.7rem; height: 0.7rem; border-radius: 50%;
+    background: currentColor; flex: none;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .verdict p { margin: 0; font-size: calc(var(--step-0) * 0.94); color: var(--ink-soft); line-height: 1.5; }
+
+  .meter { display: flex; flex-direction: column; gap: 0.4rem; }
+  .meter .lbl {
+    font-family: var(--grotesk); font-size: var(--step--1);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .meter .lbl b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 700; letter-spacing: 0; }
+  .bar { height: 0.6rem; background: var(--bg-sunk); border-radius: 999px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; width: 0%; border-radius: 999px; transition: width 0.15s linear, background 0.25s; }
+  .bar.shake { animation: shake 0.14s linear infinite; }
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2.5px); }
+    50% { transform: translateX(0); }
+    75% { transform: translateX(2.5px); }
+    100% { transform: translateX(0); }
+  }
+
+  .warning {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
+    border: 1.5px solid var(--bad); border-radius: 11px;
+    background: color-mix(in srgb, var(--bad) 15%, var(--bg-panel));
+    color: var(--bad); padding: 0.55rem 0.55rem 0.55rem 0.85rem;
+    font-family: var(--grotesk);
+    animation: flash 0.8s steps(1, end) infinite;
+  }
+  .warning[hidden] { display: none; }
+  .warn-label { font-weight: 800; font-size: var(--step--1); letter-spacing: 0.04em; text-transform: uppercase; }
+  .warn-count {
+    font-weight: 800; font-size: 1.5rem; line-height: 1; font-variant-numeric: tabular-nums;
+    min-width: 2.2rem; height: 2.2rem; display: grid; place-items: center;
+    border-radius: 8px; background: var(--bad); color: var(--bg-panel);
+  }
+  @keyframes flash { 50% { opacity: 0.4; } }
+
+  .controls { display: flex; flex-direction: column; gap: 0.7rem; margin-top: auto; }
+  .btn {
+    font-family: var(--grotesk); font-weight: 700; font-size: var(--step--1);
+    letter-spacing: 0.03em;
+    border: 1px solid var(--rule); background: var(--bg-sunk); color: var(--ink);
+    border-radius: 10px; padding: 0.7rem 0.9rem; cursor: pointer; width: 100%;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 1.2rem;
+    font-family: var(--grotesk); font-size: var(--step--1); color: var(--ink-faint);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .legend i { width: 0.85rem; height: 0.85rem; border-radius: 3px; display: inline-block; }
+  .legend i.ring { background: transparent; box-shadow: inset 0 0 0 2px var(--ink-faint); border-radius: 50%; }
+
+  /* ---- Footer ---- */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-block: 2.4rem 3rem;
+    color: var(--ink-faint);
+    font-family: var(--grotesk); font-size: var(--step--1);
+  }
+  footer .safety {
+    font-family: var(--serif); font-size: calc(var(--step-0) * 0.95);
+    color: var(--ink-soft); max-width: 60ch; margin: 0 0 1.2rem;
+    padding-left: 1rem; border-left: 3px solid var(--accent);
+    line-height: 1.5;
+  }
+
+  .theme-toggle {
+    position: fixed; top: 0.9rem; right: 0.9rem; z-index: 10;
+    font-family: var(--grotesk); font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    border: 1px solid var(--rule); background: color-mix(in srgb, var(--bg-panel) 85%, transparent);
+    color: var(--ink-soft); border-radius: 999px; padding: 0.45rem 0.8rem; cursor: pointer;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; scroll-behavior: auto !important; }
+    .bar.shake, .warning { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">Theme</button>
+
+<header class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <h1>Rock Climbing<br><em>Simulator</em></h1>
+    <p class="lede">Learn the key techniques of climbing, then try them in the interactive simulator below.</p>
+  </div>
+</header>
+
+<section class="wrap">
+  <div class="section-head">
+    <p class="eyebrow">The six that matter</p>
+    <h2>Technique before strength</h2>
+    <p>Most plateaus aren't a lack of power — they're wasted energy. These are the habits that separate flailing from flowing. Read them, then feel them in the demo below.</p>
+  </div>
+
+  <div class="cards">
+    <article class="card">
+      <span class="num">01</span>
+      <h3>Trust your feet</h3>
+      <p>Place the inside edge or big-toe point on the hold and commit your weight to it. Legs are your strongest muscles — let them carry you while your hands mostly steer.</p>
+      <span class="cue">Look at the foothold until your toe lands on it.</span>
+    </article>
+    <article class="card">
+      <span class="num">02</span>
+      <h3>Center of mass over feet</h3>
+      <p>Balance holds when your hips stack above your base of support — the space between your feet. Drift outside it and you swing, grip, and burn out.</p>
+      <span class="cue">Feel weight pressing down through your toes, not out on your hands.</span>
+    </article>
+    <article class="card">
+      <span class="num">03</span>
+      <h3>Straight-arm resting</h3>
+      <p>Hang from your skeleton, not your biceps. Locked-off arms pump you out; straight arms let bone and tendon take the load so muscle recovers.</p>
+      <span class="cue">On any decent hold, drop your shoulders and hang.</span>
+    </article>
+    <article class="card">
+      <span class="num">04</span>
+      <h3>Hips to the wall</h3>
+      <p>Turning a hip in ("backstepping") brings your center of mass close to the rock and extends your reach. The further your hips sit out, the more your arms fight gravity.</p>
+      <span class="cue">Twist so one shoulder points at the next hold.</span>
+    </article>
+    <article class="card">
+      <span class="num">05</span>
+      <h3>Flag to stay square</h3>
+      <p>When you only have one good foothold, extend the free leg out as a counterweight. Flagging shifts your balance point so you don't barn-door off the wall.</p>
+      <span class="cue">Press the flagging foot lightly against the wall for tension.</span>
+    </article>
+    <article class="card">
+      <span class="num">06</span>
+      <h3>Quiet feet</h3>
+      <p>Precise, silent placements mean you're looking and committing. Scrabbling feet mean you're grabbing with your hands and hoping. Move deliberately.</p>
+      <span class="cue">Aim for no sound when your shoe touches the hold.</span>
+    </article>
+  </div>
+</section>
+
+<section class="demo-section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Interactive · Physics sandbox</p>
+      <h2>Set a stance, watch the strain</h2>
+      <p>Grip holds with his <strong>hands</strong>, stand his <strong>feet</strong> on holds, and drag his <strong>hips</strong> to set a stance — the hips hold that position, so standing taller lets his arms reach farther. The panel shows the <strong>strain in each arm</strong>. Lean off-balance or hang from one arm and that arm climbs over its strength: hold it there for five seconds and it gives out — and he falls. Limbs are a fixed length (a hold out of reach stays out of reach), and reach too far off a foot and it will <strong>slip</strong>.</p>
+    </div>
+
+    <div class="demo">
+      <div class="stage">
+        <canvas id="wall" width="720" height="560" role="img"
+          aria-label="A climber on a bouldering wall governed by gravity. Drag his hands and feet onto holds and his hips to shift weight; anchored limbs stay fixed while the rest of the body swings."></canvas>
+        <span class="hint">Drag limbs onto holds · release off a hold to let it dangle</span>
+      </div>
+
+      <div class="panel">
+        <div class="verdict">
+          <p class="eyebrow">Balance</p>
+          <div class="status" id="status"><span class="dot"></span><span id="statusText">Balanced</span></div>
+          <p id="statusDesc">His center of mass sits over his feet. Arms are relaxed — this is where you rest, chalk up, and read the next move.</p>
+        </div>
+
+        <div class="warning" id="warning" role="alert" hidden>
+          <span class="warn-label" id="warnLabel">Left arm giving out</span>
+          <span class="warn-count" id="warnCount">5</span>
+        </div>
+
+        <div class="meter">
+          <div class="lbl"><span>Load on feet</span><b id="footPct">80%</b></div>
+          <div class="bar"><span id="footBar" style="background:var(--good)"></span></div>
+        </div>
+        <div class="meter">
+          <div class="lbl"><span>Left arm strain</span><b id="armLPct">off</b></div>
+          <div class="bar"><span id="armLBar" style="background:var(--good)"></span></div>
+        </div>
+        <div class="meter">
+          <div class="lbl"><span>Right arm strain</span><b id="armRPct">off</b></div>
+          <div class="bar"><span id="armRBar" style="background:var(--good)"></span></div>
+        </div>
+
+        <div class="controls">
+          <button class="btn" id="resetBtn">Reset climber</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend" aria-hidden="true">
+      <span><i style="background:var(--accent)"></i> Hips (center of mass)</span>
+      <span><i style="background:var(--ink-faint)"></i> Holds on the wall</span>
+      <span><i class="ring"></i> Limb in the air</span>
+      <span><i style="background:var(--good)"></i> Base of support</span>
+      <span><i style="background:var(--bad)"></i> Off-balance</span>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <p class="safety"><strong>Climb smart.</strong> This page teaches movement, not safety systems. Always learn knots, belaying, and fall management from a qualified instructor, use checked gear, and have a competent partner before you leave the ground.</p>
+  <p>Built as a movement primer · center-of-mass model simplified for teaching.</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Theme toggle ---------- */
+  var root = document.documentElement;
+  var tbtn = document.getElementById("themeToggle");
+  function currentDark() {
+    var attr = root.getAttribute("data-theme");
+    if (attr) return attr === "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  tbtn.addEventListener("click", function () {
+    root.setAttribute("data-theme", currentDark() ? "light" : "dark");
+    draw();
+  });
+
+  /* ---------- Canvas ---------- */
+  var canvas = document.getElementById("wall");
+  var ctx = canvas.getContext("2d");
+  var W = 720, H = 560;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function css(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+
+  // A spray of holds across the wall (bouldering style).
+  var HOLDS = [
+    { x: 150, y: 120 }, { x: 300, y: 90 },  { x: 430, y: 110 }, { x: 560, y: 95 },
+    { x: 210, y: 220 }, { x: 370, y: 200 }, { x: 520, y: 240 },
+    { x: 120, y: 330 }, { x: 290, y: 320 }, { x: 460, y: 330 }, { x: 600, y: 350 },
+    { x: 200, y: 450 }, { x: 360, y: 460 }, { x: 500, y: 450 }, { x: 620, y: 430 }
+  ];
+  var START = { handL: 4, handR: 5, footL: 11, footR: 12 };
+
+  /* ---------- Physics: Verlet particles + fixed-length bones ---------- */
+  var GRAV = 0.55;
+  var DAMP = reduce ? 0.80 : 0.90;   // inertia / air resistance
+  var ITER = 18;                      // constraint relaxation passes (rigid bones)
+
+  var P = {};   // particles: {x,y,px,py,pin,pinx,piny}
+  var HEAD_UP = 30;   // head sits this far above the shoulder — always upright
+  var TORSO = 84;     // shoulder sits this far above the hips — torso held upright
+  var ARM_UP = 60, ARM_FORE = 56, ARM_LEN = ARM_UP + ARM_FORE;   // upper arm + forearm
+  var LEG_UP = 84, LEG_FORE = 80, LEG_LEN = LEG_UP + LEG_FORE;   // thigh + shin
+  var FOOT_STAND = 9;   // feet rest this far ON TOP of a hold (standing, not gripping)
+  var SLIP_AT = 0.955;  // leg extension at which a standing foot starts to slip
+  var OVERLOAD = 40;    // per-arm load (%) above which an arm is over its strength
+  var FAIL_SECS = 5;    // hold that long over strength and the arm gives out → fall
+  // The hips are a positioned anchor: you set the stance and it HOLDS (like engaged core),
+  // so standing taller raises the shoulder and lets the arms reach farther. The torso is
+  // derived upright from the hips. Bones are max-length tethers for the FREE (dangling)
+  // limbs only — they can bend shorter but never stretch past full extension.
+  var BONES = [
+    { a: "shoulder", b: "handL", len: ARM_LEN, max: true },
+    { a: "shoulder", b: "handR", len: ARM_LEN, max: true },
+    { a: "hips", b: "footL", len: LEG_LEN, max: true },
+    { a: "hips", b: "footR", len: LEG_LEN, max: true }
+  ];
+
+  var CONTACTS = ["handL", "handR", "footL", "footR"];
+  var grip = {};        // contact -> hold index, or null (in the air)
+  var slip = { footL: 0, footR: 0 };   // how far each standing foot has slipped (0..1 = off)
+  var hipsTarget = { x: 0, y: 0 };     // the stance the hips hold
+  var overloadT = 0;    // seconds the climber has been in a position he can't hold
+  var inDanger = false; // whether he is over his limit RIGHT NOW (drives the warning)
+  var overloadHand = null;   // which arm is over strength (null = losing balance instead)
+  var overloadReason = null; // label for the warning banner
+  var fell = false;     // true once an arm gives out — full ragdoll fall
+  var fellFrames = 0;   // frames to keep animating the fall before sleeping
+  var lastTs = null;    // performance.now() of previous frame, for real-time countdown
+  var dragKey = null;   // particle being dragged, or null
+  var dragPos = { x: 0, y: 0 };
+
+  function make(x, y) { return { x: x, y: y, px: x, py: y, pin: false, pinx: 0, piny: 0 }; }
+
+  function reset() {
+    grip = { handL: START.handL, handR: START.handR, footL: START.footL, footR: START.footR };
+    var fL = HOLDS[START.footL], fR = HOLDS[START.footR];
+    var hipsX = (fL.x + fR.x) / 2;
+    var hipsY = Math.min(fL.y, fR.y) - 90;      // stand up off the footholds
+    P.hips = make(hipsX, hipsY);
+    P.shoulder = make(hipsX, hipsY - TORSO);
+    P.handL = make(HOLDS[START.handL].x, HOLDS[START.handL].y);
+    P.handR = make(HOLDS[START.handR].x, HOLDS[START.handR].y);
+    P.footL = make(fL.x, fL.y - FOOT_STAND); P.footR = make(fR.x, fR.y - FOOT_STAND);
+    hipsTarget = { x: hipsX, y: hipsY };
+    slip.footL = 0; slip.footR = 0;
+    overloadT = 0; inDanger = false; overloadHand = null; overloadReason = null; fell = false; fellFrames = 0; lastTs = null;
+    dragKey = null;
+  }
+  reset();
+
+  function updatePins() {
+    var footSupport = grip.footL != null || grip.footR != null;
+    CONTACTS.forEach(function (k) {
+      var p = P[k];
+      var foot = k.indexOf("foot") === 0;
+      // The dragged limb is NOT hard-pinned to the cursor — it soft-follows it in
+      // frame() so the rigid bones always win and the limb can't stretch past its length.
+      if (dragKey === k) { p.pin = false; }
+      else if (grip[k] != null) {
+        p.pin = true;
+        p.pinx = HOLDS[grip[k]].x;
+        p.piny = HOLDS[grip[k]].y - (foot ? FOOT_STAND : 0);   // feet stand ON TOP of the hold
+      } else { p.pin = false; }                                // in the air
+    });
+    // Hips hold the stance while standing; with no feet they hang free from the hands.
+    P.hips.pin = (!fell && footSupport && dragKey !== "hips");
+    if (P.hips.pin) { P.hips.pinx = hipsTarget.x; P.hips.piny = hipsTarget.y; }
+    P.shoulder.pin = true;   // derived above the hips each frame; immovable for the solver
+  }
+
+  function integrate() {
+    for (var k in P) {
+      var p = P[k];
+      if (p.pin) { p.x = p.pinx; p.y = p.piny; p.px = p.x; p.py = p.y; continue; }
+      var vx = (p.x - p.px) * DAMP;
+      var vy = (p.y - p.py) * DAMP;
+      p.px = p.x; p.py = p.y;
+      p.x += vx; p.y += vy + GRAV;
+    }
+  }
+
+  function solve() {
+    for (var it = 0; it < ITER; it++) {
+      for (var i = 0; i < BONES.length; i++) {
+        var bo = BONES[i], a = P[bo.a], b = P[bo.b];
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var d = Math.hypot(dx, dy) || 0.0001;
+        if (bo.max && d <= bo.len) continue;       // limbs may bend shorter, never stretch longer
+        var diff = (d - bo.len) / d;               // pull back to (max) length
+        var wa = a.pin ? 0 : 1, wb = b.pin ? 0 : 1;
+        var tw = wa + wb; if (tw === 0) continue;
+        var mx = dx * diff, my = dy * diff;
+        a.x += mx * (wa / tw); a.y += my * (wa / tw);
+        b.x -= mx * (wb / tw); b.y -= my * (wb / tw);
+      }
+      // keep free particles on the canvas
+      for (var k in P) {
+        var p = P[k]; if (p.pin) continue;
+        if (p.x < 10) p.x = 10; else if (p.x > W - 10) p.x = W - 10;
+        if (p.y < 10) p.y = 10; else if (p.y > H - 10) p.y = H - 10;
+      }
+    }
+  }
+
+  /* ---------- Balance analysis ---------- */
+  function analyze() {
+    var footKeys = [];
+    if (grip.footL != null) footKeys.push("footL");
+    if (grip.footR != null) footKeys.push("footR");
+    var handCount = (grip.handL != null ? 1 : 0) + (grip.handR != null ? 1 : 0);
+    var gripped = footKeys.length + handCount;
+
+    var out = { footKeys: footKeys, feet: footKeys.length, hands: handCount };
+
+    if (gripped === 0) {
+      out.state = "falling"; out.handLoad = 0; out.footLoad = 0; out.reach = 0;
+      out.arm = { handL: 0, handR: 0 };
+      return out;
+    }
+    if (footKeys.length === 0) {
+      out.state = "hang";
+      out.handLoad = handCount === 1 ? 100 : 96;
+      out.footLoad = 100 - out.handLoad;
+    } else {
+      var xs = footKeys.map(function (k) { return P[k].x; });
+      var left = Math.min.apply(null, xs), right = Math.max.apply(null, xs);
+      var mid = (left + right) / 2;
+      var half = Math.max(26, (right - left) / 2);
+      var norm = (P.hips.x - mid) / half;
+      var over = Math.max(0, Math.abs(norm) - 1);
+      out.left = left; out.right = right;
+      out.fy = Math.max.apply(null, footKeys.map(function (k) { return P[k].y; })) + 22;
+      out.side = norm < 0 ? -1 : 1;
+      var lean = Math.min(1, over * 0.85 + Math.abs(norm) * 0.16);
+      out.handLoad = Math.round(Math.min(0.95, 0.18 + lean * 0.8) * 100);
+      out.footLoad = 100 - out.handLoad;
+      out.state = Math.abs(norm) <= 0.82 ? "balanced" : (Math.abs(norm) <= 1.0 ? "edge" : "off");
+    }
+
+    // Per-arm strain: split the total arm load between the gripping hands. The hand the
+    // body leans toward bears more; a lone gripping hand bears all of it.
+    out.arm = { handL: 0, handR: 0 };
+    var gh = [];
+    if (grip.handL != null) gh.push("handL");
+    if (grip.handR != null) gh.push("handR");
+    if (gh.length === 1) {
+      out.arm[gh[0]] = out.handLoad;
+    } else if (gh.length === 2) {
+      var midx = (P.handL.x + P.handR.x) / 2;
+      var spread = Math.max(50, Math.abs(P.handR.x - P.handL.x));
+      var t = Math.max(-1, Math.min(1, (P.hips.x - midx) / spread));   // -1 left … +1 right
+      var rShare = Math.max(0.12, Math.min(0.88, 0.5 + 0.45 * t));
+      out.arm.handR = out.handLoad * rShare;
+      out.arm.handL = out.handLoad * (1 - rShare);
+    }
+    return out;
+  }
+
+  /* ---------- Rendering ---------- */
+  function line(a, b, color, w) {
+    ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+  }
+  function disc(p, r, fill, stroke, sw) {
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = sw || 3; ctx.stroke(); }
+  }
+  function bone(root2, joint, end, color, w) {   // two rigid segments meeting at a joint
+    line(root2, joint, color, w);
+    line(joint, end, color, w);
+    disc(joint, w * 0.5, color, null);
+  }
+
+  // Two-bone IK: place the joint (elbow/knee) for fixed segment lengths l1,l2,
+  // choosing the bend side nearest `hint` so limbs always fold the natural way.
+  function ikHint(root2, end, l1, l2, hint) {
+    var dx = end.x - root2.x, dy = end.y - root2.y;
+    var full = Math.hypot(dx, dy) || 0.0001;
+    var d = Math.max(Math.abs(l1 - l2) + 0.5, Math.min(full, l1 + l2 - 0.5));
+    var ux = dx / full, uy = dy / full;
+    var a = (d * d + l1 * l1 - l2 * l2) / (2 * d);
+    var h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+    var bx = root2.x + ux * a, by = root2.y + uy * a;
+    var j1 = { x: bx - uy * h, y: by + ux * h };
+    var j2 = { x: bx + uy * h, y: by - ux * h };
+    return dist(j1, hint) <= dist(j2, hint) ? j1 : j2;
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+  function drawShoe(p, color, edge) {   // a little boot standing on the hold
+    ctx.fillStyle = color; ctx.strokeStyle = edge; ctx.lineWidth = 2.5;
+    roundRect(p.x - 9, p.y - 4, 22, 10, 5);
+    ctx.fill(); ctx.stroke();
+  }
+
+  function draw(a) {
+    if (!a) a = analyze();
+    var wall = css("--wall"), wallLine = css("--wall-line");
+    var ink = css("--ink"), inkFaint = css("--ink-faint");
+    var accent = css("--accent"), panelBg = css("--bg-panel");
+    var good = "#37b06a", warn = "#e8a53a", bad = "#e0533b";
+    var zone = a.state === "off" || a.state === "falling" ? bad
+             : (a.state === "edge" || a.state === "hang" ? warn : good);
+
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.fillStyle = wall; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = wallLine; ctx.lineWidth = 1;
+    for (var gx = 48; gx < W; gx += 48) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+    for (var gy = 48; gy < H; gy += 48) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+
+    // Holds
+    for (var i = 0; i < HOLDS.length; i++) {
+      disc(HOLDS[i], 13, panelBg, inkFaint, 2);
+      disc(HOLDS[i], 4.5, inkFaint, null);
+    }
+
+    // Base of support (only meaningful when at least one foot is planted)
+    if (a.left != null) {
+      ctx.fillStyle = zone + "22";
+      ctx.fillRect(a.left, a.fy - 4, Math.max(2, a.right - a.left), 8);
+      line({ x: a.left, y: a.fy }, { x: a.right, y: a.fy }, zone, 3);
+      ctx.setLineDash([5, 6]);
+      line({ x: P.hips.x, y: P.hips.y }, { x: P.hips.x, y: a.fy }, zone, 2);
+      ctx.setLineDash([]);
+    }
+
+    var limb = (a.state === "off" || a.state === "falling") ? bad : ink;
+
+    // Torso
+    line(P.hips, P.shoulder, limb, 10);
+
+    // Elbows fold down, knees splay outward — placed by IK so the bend is always natural.
+    var elbowL = ikHint(P.shoulder, P.handL, ARM_UP, ARM_FORE, { x: P.shoulder.x - 12, y: P.shoulder.y + 130 });
+    var elbowR = ikHint(P.shoulder, P.handR, ARM_UP, ARM_FORE, { x: P.shoulder.x + 12, y: P.shoulder.y + 130 });
+    var kneeL = ikHint(P.hips, P.footL, LEG_UP, LEG_FORE, { x: P.hips.x - 160, y: P.hips.y + 20 });
+    var kneeR = ikHint(P.hips, P.footR, LEG_UP, LEG_FORE, { x: P.hips.x + 160, y: P.hips.y + 20 });
+    bone(P.shoulder, elbowL, P.handL, limb, 6.5);
+    bone(P.shoulder, elbowR, P.handR, limb, 6.5);
+    bone(P.hips, kneeL, P.footL, limb, 8.5);
+    bone(P.hips, kneeR, P.footR, limb, 8.5);
+
+    // Head: fixed straight above the shoulder, unaffected by gravity — always upright.
+    var head = { x: P.shoulder.x, y: P.shoulder.y - HEAD_UP };
+    line(P.shoulder, head, limb, 8);
+    disc(head, 15, limb, null);
+
+    // Hands grip (disc); feet stand on top of holds (boot). Hollow ring when in the air.
+    ["handL", "handR"].forEach(function (k) {
+      if (grip[k] != null) disc(P[k], 10, accent, panelBg, 3);
+      else disc(P[k], 9, panelBg, inkFaint, 2.5);
+    });
+    ["footL", "footR"].forEach(function (k) {
+      if (grip[k] != null) {
+        var sc = slip[k] > 0.5 ? bad : (slip[k] > 0.06 ? warn : limb);   // reddens as it slips
+        drawShoe(P[k], sc, panelBg);
+      } else {
+        disc(P[k], 9, panelBg, inkFaint, 2.5);   // dangling in the air
+      }
+    });
+
+    // Hips = center of mass
+    disc(P.hips, 16, accent + "2e", null);
+    disc(P.hips, 9.5, accent, panelBg, 3);
+
+    updatePanel(a);
+  }
+
+  /* ---------- Panel ---------- */
+  var statusEl = document.getElementById("status");
+  var statusText = document.getElementById("statusText");
+  var statusDesc = document.getElementById("statusDesc");
+  var footPct = document.getElementById("footPct");
+  var footBar = document.getElementById("footBar");
+  var armLPct = document.getElementById("armLPct");
+  var armLBar = document.getElementById("armLBar");
+  var armRPct = document.getElementById("armRPct");
+  var armRBar = document.getElementById("armRBar");
+  var warningEl = document.getElementById("warning");
+  var warnLabel = document.getElementById("warnLabel");
+  var warnCount = document.getElementById("warnCount");
+
+  var COPY = {
+    balanced: { label: "Balanced", color: "var(--good)",
+      desc: "His center of mass sits over his feet. Arms are relaxed — this is where you rest, chalk up, and read the next move." },
+    edge: { label: "On the edge", color: "var(--warn)",
+      desc: "His weight is drifting past his feet, so his arms are pulling him back in. Holdable, but you burn energy every second here." },
+    off: { label: "Off-balance", color: "var(--bad)",
+      desc: "His center of mass is outside his base of support and an arm is taking his weight. Stand back over your feet before that arm pumps out." },
+    hang: { label: "Dead hang", color: "var(--warn)",
+      desc: "Both feet are off the wall, so every kilo is on his arms — they'll pump out fast. Get a foot back on a hold to take the load." },
+    falling: { label: "No contact — falling", color: "var(--bad)",
+      desc: "Nothing is gripping the wall. With no anchor points, gravity wins and he peels off. Drag a hand or foot onto a hold." },
+    fell: { label: "Pumped out — fell!", color: "var(--bad)",
+      desc: "An arm carried too much for too long and gave out — and once one point blows, the rest follow. Reset and keep your weight over your feet next time." }
+  };
+
+  function armMeter(bar, pctEl, k, a) {
+    if (grip[k] == null) {                       // hand is off the wall
+      pctEl.textContent = "off"; bar.style.width = "0%";
+      bar.style.background = "var(--good)";
+      bar.parentElement.classList.remove("shake");
+      return;
+    }
+    var v = a.arm[k];                            // raw load
+    var pct = Math.round(v / OVERLOAD * 100);    // % of this arm's limit (100% = failing)
+    pctEl.textContent = Math.min(100, pct) + "%";
+    bar.style.width = Math.min(100, pct) + "%";
+    bar.style.background = v >= OVERLOAD ? "var(--bad)" : (v >= OVERLOAD * 0.6 ? "var(--warn)" : "var(--good)");
+    var shaking = !fell && inDanger && overloadHand === k;
+    bar.parentElement.classList.toggle("shake", shaking);
+  }
+
+  function updatePanel(a) {
+    var c = COPY[fell ? "fell" : a.state];
+    statusEl.style.color = c.color;
+    statusText.textContent = c.label;
+    statusDesc.textContent = c.desc;
+
+    var warnOn = inDanger && !fell;
+
+    footPct.textContent = a.footLoad + "%";
+    footBar.style.width = a.footLoad + "%";
+    footBar.style.background = a.footLoad >= 55 ? "var(--good)" : (a.footLoad >= 35 ? "var(--warn)" : "var(--bad)");
+    footBar.parentElement.classList.toggle("shake", warnOn && overloadHand === null);
+
+    armMeter(armLBar, armLPct, "handL", a);
+    armMeter(armRBar, armRPct, "handR", a);
+
+    // Warning banner + countdown
+    warningEl.hidden = !warnOn;
+    if (warnOn) {
+      warnLabel.textContent = overloadReason || "Can't hold this";
+      warnCount.textContent = Math.max(1, Math.ceil(FAIL_SECS - overloadT));
+    }
+  }
+
+  /* ---------- Interaction ---------- */
+  function canvasPos(e) {
+    var r = canvas.getBoundingClientRect();
+    var px = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    var py = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    return { x: px * (W / r.width), y: py * (H / r.height) };
+  }
+  function pick(p) {
+    var best = null, bestD = 34;
+    var candidates = ["hips"].concat(CONTACTS);
+    for (var i = 0; i < candidates.length; i++) {
+      var key = candidates[i] === "hips" ? "hips" : candidates[i];
+      var d = dist(p, P[key]);
+      if (d < bestD) { bestD = d; best = candidates[i]; }
+    }
+    return best;
+  }
+  function nearestHold(p) {
+    var best = 0, bestD = Infinity;
+    for (var i = 0; i < HOLDS.length; i++) {
+      var d = dist(p, HOLDS[i]);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return { index: best, d: bestD };
+  }
+
+  function onDown(e) {
+    if (fell) return;                 // must Reset after a fall
+    var p = canvasPos(e);
+    var hit = pick(p);
+    if (!hit) return;
+    dragKey = hit;
+    dragPos = p;
+    if (CONTACTS.indexOf(hit) >= 0) grip[hit] = null;  // lift off the hold while dragging
+    canvas.classList.add("dragging");
+    wake(); e.preventDefault();
+  }
+  function onMove(e) {
+    if (!dragKey) return;
+    dragPos = canvasPos(e);
+    wake(); e.preventDefault();
+  }
+  function onUp() {
+    if (dragKey && CONTACTS.indexOf(dragKey) >= 0) {
+      // Grip only if the hand/foot actually reached the hold. Because the limb can't
+      // stretch, an out-of-reach hold leaves it short — so it stays dangling in the air.
+      var n = nearestHold(P[dragKey]);
+      grip[dragKey] = n.d < 34 ? n.index : null;
+    }
+    dragKey = null;
+    canvas.classList.remove("dragging");
+    wake();
+  }
+
+  canvas.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+  canvas.addEventListener("touchstart", onDown, { passive: false });
+  canvas.addEventListener("touchmove", onMove, { passive: false });
+  canvas.addEventListener("touchend", onUp);
+
+  // Keyboard: move the held hip stance (the core teaching variable).
+  canvas.tabIndex = 0;
+  canvas.addEventListener("keydown", function (e) {
+    if (fell) return;
+    var step = e.shiftKey ? 22 : 10;
+    var nx = hipsTarget.x, ny = hipsTarget.y;
+    if (e.key === "ArrowLeft") nx -= step;
+    else if (e.key === "ArrowRight") nx += step;
+    else if (e.key === "ArrowUp") ny -= step;
+    else if (e.key === "ArrowDown") ny += step;
+    else return;
+    var t = clampReach({ x: nx, y: ny });
+    hipsTarget.x = t.x; hipsTarget.y = t.y;
+    P.hips.x = t.x; P.hips.y = t.y; P.hips.px = t.x; P.hips.py = t.y;
+    wake(); e.preventDefault();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () { reset(); wake(); });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { draw(); });
+
+  /* ---------- Foot slip: a standing foot loses purchase when over-reached ---------- */
+  function processSlip() {
+    ["footL", "footR"].forEach(function (k) {
+      if (grip[k] == null || dragKey === k) { slip[k] = 0; return; }
+      var ext = dist(P.hips, P[k]) / LEG_LEN;   // 1.0 = leg fully straight / being yanked off
+      if (ext > SLIP_AT) slip[k] += (ext - SLIP_AT) * 7;
+      else slip[k] = Math.max(0, slip[k] - 0.06);
+      if (slip[k] >= 1) { grip[k] = null; slip[k] = 0; }   // foot pops off the hold
+    });
+  }
+
+  /* ---------- Keep the hips within every anchored limb's fixed length ---------- */
+  function clampReach(pos) {
+    var x = pos.x, y = pos.y;
+    for (var it = 0; it < 6; it++) {
+      ["footL", "footR"].forEach(function (k) {
+        if (grip[k] == null || dragKey === k) return;
+        var ax = HOLDS[grip[k]].x, ay = HOLDS[grip[k]].y - FOOT_STAND, R = LEG_LEN * 0.995;
+        var dx = x - ax, dy = y - ay, d = Math.hypot(dx, dy) || 1;
+        if (d > R) { x = ax + dx / d * R; y = ay + dy / d * R; }
+      });
+      ["handL", "handR"].forEach(function (k) {
+        if (grip[k] == null || dragKey === k) return;
+        // shoulder = hips - (0, TORSO); keep the shoulder within ARM_LEN of the grip.
+        var ax = HOLDS[grip[k]].x, ay = HOLDS[grip[k]].y + TORSO, R = ARM_LEN * 0.995;
+        var dx = x - ax, dy = y - ay, d = Math.hypot(dx, dy) || 1;
+        if (d > R) { x = ax + dx / d * R; y = ay + dy / d * R; }
+      });
+    }
+    x = Math.max(28, Math.min(W - 28, x));
+    y = Math.max(50, Math.min(H - 34, y));
+    return { x: x, y: y };
+  }
+
+  /* ---------- Fatigue: an arm over its strength for FAIL_SECS gives out ---------- */
+  function overloadStep(dt, a) {
+    if (fell) return;
+    var worst = 0, wh = null;
+    ["handL", "handR"].forEach(function (k) {
+      if (grip[k] != null && a.arm[k] > worst) { worst = a.arm[k]; wh = k; }
+    });
+    var danger = false;
+    if (worst >= OVERLOAD) {                 // an arm is over its strength
+      danger = true; overloadHand = wh;
+      overloadReason = (wh === "handL" ? "Left" : "Right") + " arm giving out";
+    } else if (a.state === "off" && a.hands === 0) {   // toppling with nothing to catch him
+      danger = true; overloadHand = null; overloadReason = "Losing balance";
+    }
+    inDanger = danger;
+    if (danger) { overloadT += dt; }
+    else {
+      overloadT = Math.max(0, overloadT - dt * 1.6);   // fatigue recovers quietly in the background
+      if (overloadT === 0) { overloadHand = null; overloadReason = null; }
+    }
+    if (overloadT >= FAIL_SECS) triggerFall();
+  }
+  function triggerFall() {
+    fell = true; fellFrames = 200;   // keep the loop alive so gravity can drop him
+    overloadT = 0; inDanger = false; overloadHand = null; overloadReason = null;
+    CONTACTS.forEach(function (k) { grip[k] = null; });   // the whole body comes off
+  }
+
+  /* ---------- Animation loop (sleeps when settled) ---------- */
+  var running = false;
+  function frame() {
+    var now = performance.now();
+    var dt = lastTs == null ? 0.016 : Math.min(0.05, (now - lastTs) / 1000);
+    lastTs = now;
+
+    var footSupport = grip.footL != null || grip.footR != null;
+    updatePins();
+    integrate();
+
+    if (!fell) {
+      if (dragKey === "hips") {
+        var t = clampReach(dragPos);           // stance can't exceed any anchored limb's reach
+        P.hips.x = t.x; P.hips.y = t.y; P.hips.px = t.x; P.hips.py = t.y;
+      } else if (dragKey && CONTACTS.indexOf(dragKey) >= 0) {
+        var dp = P[dragKey];                   // soft cursor target; rigid bones still win
+        dp.x = dragPos.x; dp.y = dragPos.y; dp.px = dp.x; dp.py = dp.y;
+        // Reaching: if a HAND is dragged past its arm's length, shift the whole stance
+        // toward it — as far as the feet and other hand allow — so the body extends to reach.
+        if (dragKey.indexOf("hand") === 0) {
+          var sh = { x: P.hips.x, y: P.hips.y - TORSO };
+          var dd = dist(sh, dp);
+          if (dd > ARM_LEN) {
+            var ux = (dp.x - sh.x) / dd, uy = (dp.y - sh.y) / dd, pull = dd - ARM_LEN;
+            var g = clampReach({ x: P.hips.x + ux * pull, y: P.hips.y + uy * pull });
+            P.hips.x = g.x; P.hips.y = g.y; P.hips.px = g.x; P.hips.py = g.y;
+          }
+        }
+      }
+      if (!footSupport && dragKey !== "hips") {   // no feet planted → hang from the hands
+        var h = clampReach({ x: P.hips.x, y: P.hips.y });
+        P.hips.x = h.x; P.hips.y = h.y;
+      }
+      hipsTarget.x = P.hips.x; hipsTarget.y = P.hips.y;   // remember the current stance
+    }
+
+    // Torso held upright: shoulder derived above the hips (head is drawn above the shoulder).
+    P.shoulder.x = P.hips.x; P.shoulder.y = P.hips.y - TORSO;
+    P.shoulder.px = P.shoulder.x; P.shoulder.py = P.shoulder.y;
+
+    solve();
+    processSlip();
+
+    var a = analyze();
+    overloadStep(dt, a);
+    draw(a);
+
+    var maxV = 0;
+    for (var k in P) {
+      var p = P[k]; if (p.pin) continue;
+      maxV = Math.max(maxV, Math.abs(p.x - p.px) + Math.abs(p.y - p.py));
+    }
+    if (fellFrames > 0) fellFrames--;
+    // keep animating while dragging, still moving, mid-fall, or a countdown is ticking
+    if (dragKey || maxV > 0.12 || (overloadT > 0 && !fell) || fellFrames > 0) { requestAnimationFrame(frame); }
+    else { running = false; }
+  }
+  function wake() { if (!running) { lastTs = null; running = true; requestAnimationFrame(frame); } }
+
+  /* ---------- Crisp rendering on high-DPR screens ---------- */
+  function fit() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    canvas.style.aspectRatio = W + " / " + H;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+  fit();
+  wake();  // let the pose settle into gravity on load
+})();
+</script>
+</body>
+</html>
