@@ -122,117 +122,44 @@
   a { color: var(--accent); }
   :focus-visible { outline: 2.5px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
 
-  /* ---- Hero ---- */
-  header.hero {
-    border-bottom: 1px solid var(--rule);
-    padding-block: clamp(3rem, 2rem + 6vw, 7rem) clamp(2.4rem, 1.6rem + 4vw, 5rem);
-    position: relative;
-    overflow: hidden;
+  /* ---- Compact header ---- */
+  .top {
+    text-align: center;
+    padding-block: clamp(1.1rem, 0.7rem + 1.6vw, 1.9rem) 0.9rem;
   }
-  .hero-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(var(--rule) 1px, transparent 1px),
-      linear-gradient(90deg, var(--rule) 1px, transparent 1px);
-    background-size: 44px 44px;
-    opacity: 0.28;
-    -webkit-mask-image: radial-gradient(120% 90% at 78% 0%, #000 25%, transparent 72%);
-            mask-image: radial-gradient(120% 90% at 78% 0%, #000 25%, transparent 72%);
-    pointer-events: none;
-  }
-  .hero-inner { position: relative; }
-  .hero h1 {
-    font-size: var(--step-4);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin: 0.5rem 0 0;
-  }
-  .hero h1 em {
-    font-style: normal;
-    color: var(--accent);
-  }
-  .hero .lede {
-    max-width: 34ch;
-    font-size: var(--step-1);
-    color: var(--ink-soft);
-    margin: 1.4rem 0 0;
-    line-height: 1.4;
-  }
-  .grade-strip {
-    display: flex; flex-wrap: wrap; gap: 0.5rem;
-    margin-top: 2rem;
-    font-family: var(--grotesk);
-    font-size: var(--step--1);
-  }
-  .grade {
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    padding: 0.3rem 0.8rem;
-    color: var(--ink-faint);
-    letter-spacing: 0.02em;
-  }
-  .grade b { color: var(--ink); font-weight: 700; }
-
-  /* ---- Sections ---- */
-  section { padding-block: clamp(2.6rem, 1.8rem + 4vw, 5rem); }
-  .section-head { max-width: 46ch; margin-bottom: clamp(1.6rem, 1rem + 2vw, 2.6rem); }
-  .section-head h2 {
-    font-size: var(--step-2);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin: 0.55rem 0 0;
-  }
-  .section-head p { color: var(--ink-soft); margin: 0.8rem 0 0; }
-
-  /* ---- Technique cards ---- */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
-    gap: 1px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
-    border-radius: 14px;
-    overflow: hidden;
-  }
-  .card {
-    background: var(--bg-panel);
-    padding: 1.5rem 1.4rem 1.6rem;
-    display: flex; flex-direction: column; gap: 0.5rem;
-  }
-  .card .num {
+  .top h1 {
     font-family: var(--mono);
-    font-size: var(--step--1);
-    color: var(--accent);
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-  }
-  .card h3 {
-    font-size: var(--step-1);
     font-weight: 700;
-    letter-spacing: -0.01em;
-    margin: 0.1rem 0 0.2rem;
+    font-size: clamp(1.15rem, 0.9rem + 1.1vw, 1.75rem);
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: var(--ink);
+    margin: 0;
   }
-  .card p { margin: 0; font-size: calc(var(--step-0) * 0.96); color: var(--ink-soft); line-height: 1.55; }
-  .card .cue {
-    margin-top: auto;
-    padding-top: 0.9rem;
-    font-family: var(--grotesk);
-    font-size: var(--step--1);
-    font-weight: 600;
-    color: var(--ink-faint);
-    letter-spacing: 0.02em;
+  .top h1 span { color: var(--accent); }
+  .use {
+    font-family: var(--serif);
+    max-width: 62ch;
+    margin: 0.7rem auto 0;
+    font-size: calc(var(--step-0) * 0.95);
+    color: var(--ink-soft);
+    line-height: 1.5;
   }
-  .card .cue::before { content: "▸ "; color: var(--accent); }
+  .use strong { color: var(--ink); font-weight: 600; }
 
-  /* ---- Demo ---- */
-  .demo-section { background: var(--bg-sunk); border-block: 1px solid var(--rule); }
-  .demo {
-    display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(15rem, 1fr);
-    gap: clamp(1rem, 0.4rem + 2vw, 2rem);
-    align-items: stretch;
+  /* ---- Demo (centered) ---- */
+  .demo-section {
+    background: var(--bg-sunk);
+    border-block: 1px solid var(--rule);
+    padding-block: clamp(1.2rem, 0.8rem + 1.5vw, 2rem);
   }
-  @media (max-width: 760px) { .demo { grid-template-columns: 1fr; } }
+  .demo {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; align-items: flex-start;
+    gap: clamp(1rem, 0.5rem + 2vw, 1.8rem);
+  }
+  .demo .stage { flex: 1 1 440px; max-width: 520px; }
+  .demo .panel { flex: 1 1 240px; max-width: 320px; }
 
   .stage {
     background: var(--bg-panel);
@@ -322,6 +249,7 @@
     display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; margin-top: 1.2rem;
     font-family: var(--grotesk); font-size: var(--step--1); color: var(--ink-faint);
   }
+  .legend { justify-content: center; }
   .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
   .legend i { width: 0.85rem; height: 0.85rem; border-radius: 3px; display: inline-block; }
   .legend i.ring { background: transparent; box-shadow: inset 0 0 0 2px var(--ink-faint); border-radius: 50%; }
@@ -359,81 +287,25 @@
 
 <button class="theme-toggle" id="themeToggle" aria-label="Switch color theme">Theme</button>
 
-<header class="hero">
-  <div class="hero-grid" aria-hidden="true"></div>
-  <div class="wrap hero-inner">
-    <h1>Rock Climbing<br><em>Simulator</em></h1>
-    <p class="lede">Learn the key techniques of climbing, then try them in the interactive simulator below.</p>
-  </div>
+<header class="top wrap">
+  <h1>Rock Climbing <span>Simulator</span></h1>
+  <p class="use">Drag the little person's <strong>hands</strong>, <strong>feet</strong>, and <strong>hips</strong> to set a stance — stand taller to reach farther. Watch each arm's strain: keep an arm past its limit (or the body off-balance) for five seconds and it gives out.</p>
 </header>
-
-<section class="wrap">
-  <div class="section-head">
-    <p class="eyebrow">The six that matter</p>
-    <h2>Technique before strength</h2>
-    <p>Most plateaus aren't a lack of power — they're wasted energy. These are the habits that separate flailing from flowing. Read them, then feel them in the demo below.</p>
-  </div>
-
-  <div class="cards">
-    <article class="card">
-      <span class="num">01</span>
-      <h3>Trust your feet</h3>
-      <p>Place the inside edge or big-toe point on the hold and commit your weight to it. Legs are your strongest muscles — let them carry you while your hands mostly steer.</p>
-      <span class="cue">Look at the foothold until your toe lands on it.</span>
-    </article>
-    <article class="card">
-      <span class="num">02</span>
-      <h3>Center of mass over feet</h3>
-      <p>Balance holds when your hips stack above your base of support — the space between your feet. Drift outside it and you swing, grip, and burn out.</p>
-      <span class="cue">Feel weight pressing down through your toes, not out on your hands.</span>
-    </article>
-    <article class="card">
-      <span class="num">03</span>
-      <h3>Straight-arm resting</h3>
-      <p>Hang from your skeleton, not your biceps. Locked-off arms pump you out; straight arms let bone and tendon take the load so muscle recovers.</p>
-      <span class="cue">On any decent hold, drop your shoulders and hang.</span>
-    </article>
-    <article class="card">
-      <span class="num">04</span>
-      <h3>Hips to the wall</h3>
-      <p>Turning a hip in ("backstepping") brings your center of mass close to the rock and extends your reach. The further your hips sit out, the more your arms fight gravity.</p>
-      <span class="cue">Twist so one shoulder points at the next hold.</span>
-    </article>
-    <article class="card">
-      <span class="num">05</span>
-      <h3>Flag to stay square</h3>
-      <p>When you only have one good foothold, extend the free leg out as a counterweight. Flagging shifts your balance point so you don't barn-door off the wall.</p>
-      <span class="cue">Press the flagging foot lightly against the wall for tension.</span>
-    </article>
-    <article class="card">
-      <span class="num">06</span>
-      <h3>Quiet feet</h3>
-      <p>Precise, silent placements mean you're looking and committing. Scrabbling feet mean you're grabbing with your hands and hoping. Move deliberately.</p>
-      <span class="cue">Aim for no sound when your shoe touches the hold.</span>
-    </article>
-  </div>
-</section>
 
 <section class="demo-section">
   <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Interactive · Physics sandbox</p>
-      <h2>Set a stance, watch the strain</h2>
-      <p>Grip holds with his <strong>hands</strong>, stand his <strong>feet</strong> on holds, and drag his <strong>hips</strong> to set a stance — the hips hold that position, so standing taller lets his arms reach farther. The panel shows the <strong>strain in each arm</strong>. Lean off-balance or hang from one arm and that arm climbs over its strength: hold it there for five seconds and it gives out — and he falls. Limbs are a fixed length (a hold out of reach stays out of reach), and reach too far off a foot and it will <strong>slip</strong>.</p>
-    </div>
-
     <div class="demo">
       <div class="stage">
-        <canvas id="wall" width="720" height="560" role="img"
-          aria-label="A climber on a bouldering wall governed by gravity. Drag his hands and feet onto holds and his hips to shift weight; anchored limbs stay fixed while the rest of the body swings."></canvas>
-        <span class="hint">Drag limbs onto holds · release off a hold to let it dangle</span>
+        <canvas id="wall" width="720" height="680" role="img"
+          aria-label="A climber on a bouldering wall governed by gravity, with a yellow finish hold at the top. Drag his hands and feet onto holds and his hips to set a stance."></canvas>
+        <span class="hint">Drag hands, feet &amp; hips · reach the yellow hold up top</span>
       </div>
 
       <div class="panel">
         <div class="verdict">
           <p class="eyebrow">Balance</p>
           <div class="status" id="status"><span class="dot"></span><span id="statusText">Balanced</span></div>
-          <p id="statusDesc">His center of mass sits over his feet. Arms are relaxed — this is where you rest, chalk up, and read the next move.</p>
+          <p id="statusDesc">The little person's center of mass sits over its feet. Arms are relaxed — a good place to rest and read the next move.</p>
         </div>
 
         <div class="warning" id="warning" role="alert" hidden>
@@ -462,17 +334,15 @@
 
     <div class="legend" aria-hidden="true">
       <span><i style="background:var(--accent)"></i> Hips (center of mass)</span>
-      <span><i style="background:var(--ink-faint)"></i> Holds on the wall</span>
+      <span><i style="background:#f2c53d"></i> Finish hold</span>
       <span><i class="ring"></i> Limb in the air</span>
-      <span><i style="background:var(--good)"></i> Base of support</span>
       <span><i style="background:var(--bad)"></i> Off-balance</span>
     </div>
   </div>
 </section>
 
 <footer class="wrap">
-  <p class="safety"><strong>Climb smart.</strong> This page teaches movement, not safety systems. Always learn knots, belaying, and fall management from a qualified instructor, use checked gear, and have a competent partner before you leave the ground.</p>
-  <p>Built as a movement primer · center-of-mass model simplified for teaching.</p>
+  <p>Made with help from <a href="https://claude.com/claude-code">Claude</a>. This is a simplified simulator — the physics is approximate and not an accurate model of real climbing.</p>
 </footer>
 
 <script>
@@ -495,20 +365,31 @@
   /* ---------- Canvas ---------- */
   var canvas = document.getElementById("wall");
   var ctx = canvas.getContext("2d");
-  var W = 720, H = 560;
+  var W = 720, H = 680;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function css(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
   function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
 
-  // A spray of holds across the wall (bouldering style).
+  // Start bottom-left, finish top-right (yellow). Gaps vary on purpose — some holds sit
+  // close together (delicate, precise moves) and some are far apart (committing reaches
+  // that need a foot advanced and the weight re-centered first).
   var HOLDS = [
-    { x: 150, y: 120 }, { x: 300, y: 90 },  { x: 430, y: 110 }, { x: 560, y: 95 },
-    { x: 210, y: 220 }, { x: 370, y: 200 }, { x: 520, y: 240 },
-    { x: 120, y: 330 }, { x: 290, y: 320 }, { x: 460, y: 330 }, { x: 600, y: 350 },
-    { x: 200, y: 450 }, { x: 360, y: 460 }, { x: 500, y: 450 }, { x: 620, y: 430 }
+    { x: 655, y: 90, f: true },   // 0  finish (top-right)
+    { x: 150, y: 600 },           // 1  start footL
+    { x: 300, y: 600 },           // 2  start footR
+    { x: 150, y: 510 },           // 3  start handL
+    { x: 300, y: 510 },           // 4  start handR
+    { x: 370, y: 415 },           // 5
+    { x: 455, y: 350 },           // 6  (6 & 8 sit close — a precise move)
+    { x: 590, y: 375 },           // 7  (6 → 7 is a big committing reach)
+    { x: 465, y: 270 },           // 8
+    { x: 590, y: 260 },           // 9  (9 & 11 sit close)
+    { x: 490, y: 175 },           // 10
+    { x: 610, y: 180 }            // 11
   ];
-  var START = { handL: 4, handR: 5, footL: 11, footR: 12 };
+  var FINISH = 0;
+  var START = { handL: 3, handR: 4, footL: 1, footR: 2 };
 
   /* ---------- Physics: Verlet particles + fixed-length bones ---------- */
   var GRAV = 0.55;
@@ -651,10 +532,12 @@
       out.left = left; out.right = right;
       out.fy = Math.max.apply(null, footKeys.map(function (k) { return P[k].y; })) + 22;
       out.side = norm < 0 ? -1 : 1;
-      var lean = Math.min(1, over * 0.85 + Math.abs(norm) * 0.16);
-      out.handLoad = Math.round(Math.min(0.95, 0.18 + lean * 0.8) * 100);
+      // Weight over the feet is only comfortable near the center; leaning ramps arm
+      // load quickly and tips off-balance well before the CoM leaves the base.
+      var lean = Math.min(1, Math.max(0, Math.abs(norm) - 0.35) * 0.95);
+      out.handLoad = Math.round(Math.min(0.95, 0.16 + lean * 0.84) * 100);
       out.footLoad = 100 - out.handLoad;
-      out.state = Math.abs(norm) <= 0.82 ? "balanced" : (Math.abs(norm) <= 1.0 ? "edge" : "off");
+      out.state = Math.abs(norm) <= 0.5 ? "balanced" : (Math.abs(norm) <= 0.85 ? "edge" : "off");
     }
 
     // Per-arm strain: split the total arm load between the gripping hands. The hand the
@@ -738,10 +621,19 @@
     for (var gx = 48; gx < W; gx += 48) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
     for (var gy = 48; gy < H; gy += 48) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
 
-    // Holds
+    // Holds (the finish hold is yellow, with a label)
     for (var i = 0; i < HOLDS.length; i++) {
-      disc(HOLDS[i], 13, panelBg, inkFaint, 2);
-      disc(HOLDS[i], 4.5, inkFaint, null);
+      if (HOLDS[i].f) {
+        disc(HOLDS[i], 15, "#f2c53d", "#9a7712", 2.5);
+        disc(HOLDS[i], 6, "#9a7712", null);
+        ctx.fillStyle = "#9a7712";
+        ctx.font = "700 11px ui-monospace, Menlo, monospace";
+        ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.fillText("FINISH", HOLDS[i].x, HOLDS[i].y - 22);
+      } else {
+        disc(HOLDS[i], 13, panelBg, inkFaint, 2);
+        disc(HOLDS[i], 4.5, inkFaint, null);
+      }
     }
 
     // Base of support (only meaningful when at least one foot is planted)
@@ -811,17 +703,19 @@
 
   var COPY = {
     balanced: { label: "Balanced", color: "var(--good)",
-      desc: "His center of mass sits over his feet. Arms are relaxed — this is where you rest, chalk up, and read the next move." },
+      desc: "The little person's center of mass sits over its feet. Arms are relaxed — a good place to rest and read the next move." },
     edge: { label: "On the edge", color: "var(--warn)",
-      desc: "His weight is drifting past his feet, so his arms are pulling him back in. Holdable, but you burn energy every second here." },
+      desc: "The little person's weight is drifting past its feet, so the arms are pulling it back in. Holdable, but you burn energy every second here." },
     off: { label: "Off-balance", color: "var(--bad)",
-      desc: "His center of mass is outside his base of support and an arm is taking his weight. Stand back over your feet before that arm pumps out." },
+      desc: "The little person's center of mass is outside its base of support — it's losing balance and will come off the wall unless you get its weight back over a foot." },
     hang: { label: "Dead hang", color: "var(--warn)",
-      desc: "Both feet are off the wall, so every kilo is on his arms — they'll pump out fast. Get a foot back on a hold to take the load." },
+      desc: "Both feet are off the wall, so every bit of weight is on the arms — they'll pump out fast. Get a foot back on a hold to take the load." },
     falling: { label: "No contact — falling", color: "var(--bad)",
-      desc: "Nothing is gripping the wall. With no anchor points, gravity wins and he peels off. Drag a hand or foot onto a hold." },
-    fell: { label: "Pumped out — fell!", color: "var(--bad)",
-      desc: "An arm carried too much for too long and gave out — and once one point blows, the rest follow. Reset and keep your weight over your feet next time." }
+      desc: "Nothing is gripping the wall. With no anchor points, gravity wins and the little person peels off. Drag a hand or foot onto a hold." },
+    fell: { label: "Fell off!", color: "var(--bad)",
+      desc: "An arm carried too much, or the body stayed off-balance too long, and gave out — once one point blows, the rest follow. Reset and keep the weight over the feet." },
+    topped: { label: "Topped out! 🎉", color: "var(--good)",
+      desc: "A hand is on the yellow finish hold — you sent it. Well climbed." }
   };
 
   function armMeter(bar, pctEl, k, a) {
@@ -841,7 +735,8 @@
   }
 
   function updatePanel(a) {
-    var c = COPY[fell ? "fell" : a.state];
+    var topped = !fell && (grip.handL === FINISH || grip.handR === FINISH);
+    var c = COPY[fell ? "fell" : (topped ? "topped" : a.state)];
     statusEl.style.color = c.color;
     statusText.textContent = c.label;
     statusDesc.textContent = c.desc;
@@ -990,7 +885,7 @@
     if (worst >= OVERLOAD) {                 // an arm is over its strength
       danger = true; overloadHand = wh;
       overloadReason = (wh === "handL" ? "Left" : "Right") + " arm giving out";
-    } else if (a.state === "off" && a.hands === 0) {   // toppling with nothing to catch him
+    } else if (a.state === "off") {          // center of mass outside the base — toppling
       danger = true; overloadHand = null; overloadReason = "Losing balance";
     }
     inDanger = danger;
